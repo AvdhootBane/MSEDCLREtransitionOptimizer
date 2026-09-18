@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSEDCL Open Access Savings — HT categories · FY 2026-27 to 2029-30</title>
+<meta name="description" content="Net monthly open-access saving for any MSEDCL HT tariff category, FY 2026-27, with a one-click plant-capacity optimiser and simple payback. Applies the ToD tariff (Table 8), transmission & wheeling charges/losses, para 18.21 banking, the 10% stranded-energy cap and the uncompensated-surplus loss. Usable for solar or wind.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#E8ECEC;--panel:#FFFFFF;--ink:#17252A;--muted:#566269;--faint:#8A969C;
+    --line:#D5DDDD;--field:#F2F6F6;--field-focus:#FFFFFF;--accent:#0E7C6B;--accent-deep:#0A5A4E;
+    --save:#1C7C4A;--marg:#B37812;--cost:#B23B32;
+    --amber-bg:#FBF1DD;--amber-line:#F0DBAE;--green-bg:#EAF5EF;--green-line:#BEE3CE;--red-bg:#FBE9E4;--red-line:#F2C7B8;
+    --shadow:0 1px 2px rgba(23,37,42,.06),0 8px 30px rgba(23,37,42,.07);
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    --sans:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.5;padding:clamp(16px,4vw,48px);min-height:100vh}
+  .wrap{max-width:1080px;margin:0 auto}
+
+  header{margin-bottom:22px;max-width:80ch}
+  header .kicker{font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--accent);display:flex;align-items:center;gap:9px;margin-bottom:10px}
+  header .kicker::before{content:"";width:26px;height:2px;background:var(--accent);display:inline-block}
+  header h1{font-size:clamp(23px,3.6vw,32px);font-weight:700;letter-spacing:-.02em;line-height:1.14}
+  header p{color:var(--muted);margin-top:9px;font-size:14.5px;max-width:72ch}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:20px}
+  @media(min-width:900px){.grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+  .card-head{padding:18px 22px 0}
+  .card-head h2{font-size:15px;font-weight:600;letter-spacing:.01em}
+  .card-head .sub{font-size:12.5px;color:var(--faint);margin-top:4px;line-height:1.5}
+
+  form{padding:16px 22px 22px;display:grid;gap:15px}
+  .row{display:grid;gap:13px}
+  @media(min-width:480px){.two{grid-template-columns:1fr 1fr}.three{grid-template-columns:1fr 1fr 1fr}}
+
+  .divider{display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:600;color:var(--accent-deep);letter-spacing:.03em;margin-top:6px;text-transform:uppercase}
+  .divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .divider .d-note{font-size:10.5px;font-weight:500;color:var(--faint);text-transform:none;letter-spacing:0}
+
+  label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:6px}
+  .field{position:relative}
+  input,select{width:100%;font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:9px;padding:10px 12px;transition:border-color .15s,background .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+  input[type=number],input.numeric{font-family:var(--mono);font-weight:500}
+  input:focus,select:focus{outline:none;border-color:var(--accent);background:var(--field-focus);box-shadow:0 0 0 3px rgba(14,124,107,.15)}
+  .field.unit input{padding-right:70px}
+  .field.unit .u{position:absolute;right:12px;top:33px;font-size:11.5px;color:var(--faint);font-family:var(--mono);pointer-events:none}
+  input.bad{border-color:var(--cost);background:#FDF0EC}
+  input.warnf{border-color:var(--marg);background:#FDF7EA}
+  input.changed{border-color:var(--marg);background:#FDF7EA}
+  input.optd{border-color:var(--accent);background:#ECF6F3}
+  select{background-image:url("data:image/svg+xml;charset=UTF-8,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23566269' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+  .hint{font-size:10.5px;color:var(--faint);margin-top:5px;font-family:var(--mono)}
+  .cufchip{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 11px;display:flex;justify-content:space-between;align-items:center}
+  .cufchip b{color:var(--ink);font-weight:600}
+
+  .optbtn{font-family:var(--sans);font-size:13.5px;font-weight:600;color:#fff;background:var(--accent);border:1px solid var(--accent-deep);border-radius:10px;padding:13px 14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 1px 2px rgba(14,124,107,.25)}
+  .optbtn:hover{background:var(--accent-deep)}
+  .optbtn:active{transform:translateY(1px)}
+  .optchip{font-family:var(--mono);font-size:12px;color:#155e38;background:var(--green-bg);border:1px solid var(--green-line);border-radius:9px;padding:11px 13px;line-height:1.55}
+  .optchip.miss{color:#9a3320;background:var(--red-bg);border-color:var(--red-line)}
+  .optchip b{font-weight:600}
+
+  .adv{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--field)}
+  .adv>summary{padding:11px 14px;font-size:12.5px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;color:var(--accent-deep)}
+  .adv>summary::-webkit-details-marker{display:none}
+  .adv>summary .chev{transition:transform .2s;color:var(--muted)}
+  .adv[open]>summary .chev{transform:rotate(180deg)}
+  .adv .advbody{padding:4px 14px 16px;display:grid;gap:13px;background:var(--panel);border-top:1px solid var(--line)}
+  .resetbtn{font-family:var(--sans);font-size:12px;font-weight:600;color:var(--accent-deep);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;justify-self:start}
+  .resetbtn:hover{background:#E9F1EF;border-color:var(--accent)}
+
+  .result{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .readout{padding:24px 26px 22px}
+  .readout .lbl{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:6px}
+  .hero{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-weight:600;letter-spacing:-.02em;color:var(--accent-deep);flex-wrap:wrap}
+  .hero.neg{color:var(--cost)}
+  .hero .cur{font-size:24px;font-weight:500;color:var(--muted)}
+  .hero .num{font-size:clamp(38px,7.5vw,54px);line-height:1}
+  .hero .unit{font-size:15px;font-weight:500;color:var(--muted)}
+  .heroline{margin-top:12px;font-family:var(--mono);font-size:14px;color:var(--ink)}
+  .heroline .pu{font-weight:600}
+  .heroline .sep{color:var(--faint);margin:0 8px}
+  .heroline .yr{color:var(--muted)}
+  .metricdiv{border-top:1px solid var(--line);margin:20px 0 16px}
+  #heroPbBox{color:var(--accent-deep)}
+  #heroPbBox.na .num{font-size:26px;color:var(--faint)}
+  .advice{margin:14px 26px 0;border-radius:11px;padding:14px 16px;border:1px solid}
+  .advice .ah{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px}
+  .advice .at{font-size:13.5px;line-height:1.5}
+  .advice .at b{font-weight:600}
+  .advice.s1{background:var(--red-bg);border-color:var(--red-line);color:#9a3320}
+  .advice.s2{background:var(--amber-bg);border-color:var(--amber-line);color:#8a5a05}
+  .advice.s3{background:var(--green-bg);border-color:var(--green-line);color:#155e38}
+
+  .verdict{margin:2px 26px 0;border-radius:11px;padding:13px 15px;display:flex;gap:11px;align-items:flex-start}
+  .verdict svg{flex:none;margin-top:1px}
+  .verdict .vt{font-size:13px;line-height:1.5}.verdict .vt b{font-weight:600}
+  .verdict.save{background:var(--green-bg);color:#155e38;border:1px solid var(--green-line)}
+  .verdict.cost{background:var(--red-bg);color:#9a3320;border:1px solid var(--red-line)}
+  .verdict.marg{background:var(--amber-bg);color:#8a5a05;border:1px solid var(--amber-line)}
+
+  .spill{margin:12px 26px 0;border-radius:11px;padding:12px 15px;background:var(--amber-bg);border:1px solid var(--amber-line);color:#7a4f05;font-size:12.5px;line-height:1.5}
+  .spill.over{background:var(--red-bg);border-color:var(--red-line);color:#9a3320}
+  .spill b{font-weight:600}.spill .amt{font-family:var(--mono);font-weight:600}
+  .spill .sh{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center;gap:7px;margin-bottom:5px}
+
+  .warnbox{margin:14px 26px 0;border-radius:11px;overflow:hidden;border:1px solid var(--line)}
+  .warnbox .whead{font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;padding:10px 14px;background:var(--field)}
+  .warnbox ul{list-style:none;margin:0;padding:8px 14px 12px;background:var(--panel);display:grid;gap:8px}
+  .warnbox li{font-size:12.5px;line-height:1.5;display:flex;gap:8px;align-items:flex-start}
+  .warnbox li .ic{flex:none;font-family:var(--mono);font-weight:700;margin-top:1px}
+  .warnbox li.err .ic{color:var(--cost)}.warnbox li.cau .ic{color:var(--marg)}.warnbox li.inf .ic{color:var(--accent)}
+  .warnbox li b{font-weight:600;color:var(--ink)}
+
+  .showbtn{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px 26px 24px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--field);font-family:var(--sans);font-size:13px;font-weight:600;color:var(--accent-deep);cursor:pointer;width:calc(100% - 52px)}
+  .showbtn:hover{background:#E9F1EF;border-color:var(--accent)}
+  .showbtn .chev{transition:transform .2s}.showbtn.open .chev{transform:rotate(180deg)}
+
+  #details{margin-top:20px;display:none}#details.on{display:block}
+  .dsec{margin-top:20px}.dsec .card-head .sub{color:var(--muted)}
+  .tbl-wrap{overflow-x:auto;padding:0 8px 12px}
+  .tbl{width:100%;border-collapse:collapse;margin-top:12px;min-width:620px}
+  .tbl th,.tbl td{text-align:right;padding:10px 13px;font-size:12.5px;border-bottom:1px solid var(--line)}
+  .tbl th{font-size:10.5px;font-weight:600;color:var(--faint);letter-spacing:.02em;vertical-align:bottom}
+  .tbl td:first-child,.tbl th:first-child{text-align:left}
+  .tbl td{font-family:var(--mono);font-weight:500}
+  .tbl td.opt{font-family:var(--sans);font-weight:600;color:var(--ink)}
+  .tbl td.opt small{display:block;font-family:var(--mono);font-weight:400;color:var(--faint);font-size:11px}
+  .tbl td.use{font-family:var(--sans);font-weight:500;font-size:11.5px;color:var(--muted);text-align:left}
+  .tbl tr.rmin td{background:var(--amber-bg)}.tbl tr.rmax td{background:var(--green-bg)}
+  .tbl tr.sub td{border-top:1px solid var(--line);font-weight:600;background:#F7FAFA}
+  .tbl tr.tot td{border-top:2px solid var(--line);font-weight:700;background:#F2F7F6}
+  .tbl tr.spillrow td{background:var(--red-bg);color:#9a3320}
+  .neg{color:var(--cost)}.pos{color:var(--save)}
+  .pill{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:600;color:#fff;border-radius:20px;padding:2px 7px;margin-left:6px;vertical-align:middle;letter-spacing:.02em}
+  .pill.min{background:var(--marg)}.pill.max{background:var(--save)}
+  .tod-neg{color:var(--save);font-weight:600}.tod-pos{color:var(--cost);font-weight:600}.tod-zero{color:var(--faint)}
+
+  .buildup{padding:6px 22px 16px}
+  .buildup h3{font-size:11.5px;font-weight:600;color:var(--accent-deep);letter-spacing:.03em;text-transform:uppercase;padding:14px 0 4px}
+  .lrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .lrow .k{font-size:13px;color:var(--muted)}.lrow .k small{display:block;color:var(--faint);font-size:11px;font-family:var(--mono);margin-top:1px}
+  .lrow .v{font-family:var(--mono);font-size:14px;font-weight:500;text-align:right;white-space:nowrap}
+  .lrow.op .k{padding-left:14px;position:relative}.lrow.op .k::before{content:"+";position:absolute;left:0;color:var(--faint);font-family:var(--mono)}
+  .lrow.subtot{border-top:1px solid var(--line);border-bottom:none}.lrow.subtot .k{font-weight:600;color:var(--ink)}.lrow.subtot .v{font-weight:600}
+
+  .bankgrid{display:grid;grid-template-columns:1fr;gap:12px;padding:16px 22px 22px}
+  @media(min-width:640px){.bankgrid{grid-template-columns:1fr 1fr 1fr}}
+  .bcell{border:1px solid var(--line);border-radius:11px;padding:14px 15px;background:var(--field)}
+  .bcell.gen{border-color:var(--accent);background:#ECF6F3;box-shadow:0 0 0 2px rgba(14,124,107,.12)}
+  .bcell .bh{font-size:13px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .bcell .bhr{font-family:var(--mono);font-size:11px;color:var(--faint);font-weight:400}
+  .bcell .barrow{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.6}.bcell .barrow b{color:var(--ink);font-weight:600}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;border-radius:6px;padding:2px 7px;margin:2px 4px 0 0}
+  .tag.y{background:var(--green-bg);color:#155e38;border:1px solid var(--green-line)}.tag.n{background:var(--red-bg);color:#9a3320;border:1px solid var(--red-line)}
+  .genflag{font-family:var(--mono);font-size:9.5px;font-weight:600;color:#fff;background:var(--accent);border-radius:20px;padding:2px 8px}
+
+  .annual{margin:0 22px 22px;background:linear-gradient(180deg,#F4FAF8,#EFF6F4);border:1px solid var(--line);border-radius:11px;padding:15px 18px;display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+  .annual .al{font-size:11.5px;color:var(--muted);font-weight:500}
+  .annual .av{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:2px}.annual .av small{font-size:11px;color:var(--muted);font-weight:500}
+
+  details.method{margin-top:20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  details.method summary{padding:15px 20px;font-size:13.5px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;color:var(--ink)}
+  details.method summary::-webkit-details-marker{display:none}
+  details.method summary .chev{transition:transform .2s;color:var(--muted)}details.method[open] summary .chev{transform:rotate(180deg)}
+  .notes{padding:0 20px 20px;font-size:13px;color:var(--muted);line-height:1.6}
+  .notes p{margin-bottom:10px}.notes b{color:var(--ink);font-weight:600}
+  .notes code{font-family:var(--mono);font-size:12px;background:var(--field);padding:2px 6px;border-radius:5px;color:var(--ink)}
+  .notes .eq{font-family:var(--mono);font-size:12px;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:11px 13px;margin:10px 0;color:var(--ink);overflow-x:auto;line-height:1.7}
+
+  .notebox{margin-top:20px;border-radius:12px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--line)}
+  .notebox .nh{padding:13px 18px;font-size:11.5px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;background:var(--panel);border-bottom:1px solid var(--line);color:var(--accent-deep)}
+  .notebox .nb{padding:14px 18px;background:var(--panel);font-size:12.5px;color:var(--muted);line-height:1.6}
+  .notebox .nb ul{margin:4px 0 0 18px}.notebox .nb li{margin-bottom:6px}.notebox .nb li b{color:var(--ink);font-weight:600}
+  .cautionbox{border-color:var(--amber-line)}.cautionbox .nh{background:var(--amber-bg);color:#8a5a05;border-bottom-color:var(--amber-line)}
+  .cautionbox .nb{background:#FDFAF2}.cautionbox .nb .cch{font-family:var(--mono);color:#9a6a05}
+
+  .ref{margin-top:20px;padding:16px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);font-size:12px;color:var(--muted);line-height:1.6}
+  .ref b{color:var(--ink);font-weight:600;display:block;margin-bottom:6px;font-size:11.5px;letter-spacing:.03em}
+  .ref .cite{font-family:var(--mono);font-size:11.5px;color:var(--accent-deep)}
+  footer{margin-top:18px;font-size:11.5px;color:var(--faint);text-align:center;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">MSEDCL renewable open access · HT categories · FY 2026-27 &rarr; 2029-30</div>
+    <h1>Open-access saving calculator</h1>
+    <p>Pick any HT tariff category and voltage; all charges load from the FY&nbsp;2026-27 orders. Enter your renewable generation (per MW) and consumption slot by slot, and the tool returns the <b>net monthly saving</b> &mdash; after the ToD tariff, transmission &amp; wheeling charges and losses, para&nbsp;18.21 banking, and the loss on surplus energy MSEDCL leaves uncompensated &mdash; the <b>optimum plant size</b>, and a <b>multi-year payback</b> on your equity across FY&nbsp;2026-27 to FY&nbsp;2029-30. Pick the financial year to see that year&rsquo;s charges and saving.</p>
+  </header>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <section class="card">
+      <div class="card-head"><h2>Your project</h2><div class="sub">Generation is per MW; consumption is your total monthly load. The tool checks your entries and flags anything that looks off.</div></div>
+      <form id="f" autocomplete="off">
+
+        <div class="divider">Connection</div>
+        <div class="field"><label for="cat">Tariff category <span style="color:var(--faint)">(page 100)</span></label>
+          <select id="cat">
+            <option value="ind" selected>HT I(A) &mdash; Industry</option>
+            <option value="inds">HT I(B) &mdash; Industry (Seasonal)</option>
+            <option value="com">HT II &mdash; Commercial</option>
+            <option value="rail">HT III &mdash; Railways / Metro / Monorail</option>
+            <option value="pww">HT IV &mdash; Public Water Works</option>
+            <option value="agp">HT V(A) &mdash; Agriculture Pumpsets</option>
+            <option value="ago">HT V(B) &mdash; Agriculture Others</option>
+            <option value="ghs">HT VI &mdash; Group Housing Societies</option>
+            <option value="psg">HT VIII &mdash; Public Services (Govt)</option>
+            <option value="pso">HT VIII(B) &mdash; Public Services (Other)</option>
+            <option value="ev">HT IX &mdash; EV Charging Station</option>
+          </select>
+        </div>
+        <div class="row three">
+          <div class="field"><label for="volt">Voltage</label>
+            <select id="volt"><option value="EHV">EHV (66 kV+)</option><option value="HT" selected>HT (33/22/11)</option></select></div>
+          <div class="field"><label for="src">Generation source</label>
+            <select id="src"><option value="solar" selected>Solar PV</option><option value="wind">Wind</option><option value="other">Other RE</option></select></div>
+          <div class="field"><label for="fy">Financial year</label>
+            <select id="fy"><option value="0" selected>FY 2026-27</option><option value="1">FY 2027-28</option><option value="2">FY 2028-29</option><option value="3">FY 2029-30</option></select></div>
+        </div>
+        <div class="row two">
+          <div class="field unit"><label for="mw">OA capacity</label><input type="number" id="mw" value="10" min="0" step="0.5" inputmode="decimal"><span class="u">MW</span></div>
+          <div class="field unit"><label for="ppc">RE price</label><input type="number" id="ppc" value="3.00" min="0" step="0.05" inputmode="decimal"><span class="u">&#8377;/unit</span></div>
+        </div>
+
+        <div class="divider">Renewable generation <span class="d-note">kWh per MW, per month</span></div>
+        <div class="row three">
+          <div class="field unit"><label for="gsolar">Solar 09&ndash;17</label><input type="number" id="gsolar" value="120000" min="0" step="1000" inputmode="decimal"><span class="u">kWh</span></div>
+          <div class="field unit"><label for="gnormal">Normal 00&ndash;09</label><input type="number" id="gnormal" value="12000" min="0" step="500" inputmode="decimal"><span class="u">kWh</span></div>
+          <div class="field unit"><label for="gpeak">Peak 17&ndash;24</label><input type="number" id="gpeak" value="6000" min="0" step="500" inputmode="decimal"><span class="u">kWh</span></div>
+        </div>
+        <div class="cufchip"><span>Implied plant CUF</span><b id="cufOut">&ndash;</b></div>
+
+        <div class="divider">Consumption <span class="d-note">total kWh per month</span></div>
+        <div class="row three">
+          <div class="field unit"><label for="csolar">Solar 09&ndash;17</label><input type="number" id="csolar" value="700000" min="0" step="1000" inputmode="decimal"><span class="u">kWh</span></div>
+          <div class="field unit"><label for="cnormal">Normal 00&ndash;09</label><input type="number" id="cnormal" value="400000" min="0" step="1000" inputmode="decimal"><span class="u">kWh</span></div>
+          <div class="field unit"><label for="cpeak">Peak 17&ndash;24</label><input type="number" id="cpeak" value="500000" min="0" step="1000" inputmode="decimal"><span class="u">kWh</span></div>
+        </div>
+
+        <button type="button" id="optBtn" class="optbtn">&#9889; Optimise plant capacity for maximum saving</button>
+        <div class="optchip" id="optChip" style="display:none"></div>
+
+        <div class="divider">Investment &amp; payback</div>
+        <div class="row two">
+          <div class="field unit"><label for="costmw">Project cost</label><input type="number" id="costmw" value="4.5" min="0" step="0.1" inputmode="decimal"><span class="u">&#8377;cr/MW</span></div>
+          <div class="field unit"><label for="roe">Return on equity</label><input type="number" id="roe" value="15" min="0" step="0.5" inputmode="decimal"><span class="u">% p.a.</span></div>
+        </div>
+        <div class="row two">
+          <div class="field unit"><label for="eqproj">Equity in project</label><input type="number" id="eqproj" value="30" min="0" max="100" step="1" inputmode="decimal"><span class="u">%</span></div>
+          <div class="field unit"><label for="eqcons">Your equity share</label><input type="number" id="eqcons" value="26" min="0" max="100" step="1" inputmode="decimal"><span class="u">%</span></div>
+        </div>
+
+        <details class="adv">
+          <summary>Tariff &amp; charges &mdash; pre-filled from the orders <span class="chev">&#9662;</span></summary>
+          <div class="advbody">
+            <div class="row two">
+              <div class="field unit"><label for="ec"><span id="ecLabel">HT I(A)</span> energy charge</label><input type="number" id="ec" value="8.44" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">MSEDCL pg 100</div></div>
+              <div class="field unit"><label for="op">Operating charges</label><input type="number" id="op" value="31850" min="0" step="50"><span class="u">&#8377;/mo</span><div class="hint">16,500 &le;5MW &middot; 31,850 &gt;5MW</div></div>
+            </div>
+            <div class="row two">
+              <div class="field unit"><label for="sreb">ToD solar rebate</label><input type="number" id="sreb" value="20" min="0" step="0.5"><span class="u">% EC</span><div class="hint">avg 15%+25% &middot; pg 76-77</div></div>
+              <div class="field unit"><label for="pchg">ToD peak charge</label><input type="number" id="pchg" value="20" min="0" step="0.5"><span class="u">% EC</span><div class="hint">+20% &middot; pg 76</div></div>
+            </div>
+            <div class="row two">
+              <div class="field unit"><label for="tc">Transmission charge</label><input type="number" id="tc" value="1.02" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">InSTS Table 20</div></div>
+              <div class="field unit"><label for="tl">Transmission loss</label><input type="number" id="tl" value="3.26" min="0" step="0.01"><span class="u">%</span><div class="hint">InSTS Table 29</div></div>
+            </div>
+            <div class="row two">
+              <div class="field unit"><label for="wc">Wheeling charge</label><input type="number" id="wc" value="0.81" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">0 EHV &middot; 0.81 HT &middot; pg 100</div></div>
+              <div class="field unit"><label for="wl">Wheeling loss</label><input type="number" id="wl" value="7.5" min="0" step="0.1"><span class="u">%</span><div class="hint">0 EHV &middot; 7.5 HT &middot; pg 106</div></div>
+            </div>
+            <div class="row two">
+              <div class="field unit"><label for="css">Cross-subsidy surcharge</label><input type="number" id="css" value="2.07" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">pg 106</div></div>
+              <div class="field unit"><label for="addl">Additional surcharge</label><input type="number" id="addl" value="0" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">nil</div></div>
+            </div>
+            <div class="field unit"><label for="surplus">Surplus / stranded energy loss</label><input type="number" id="surplus" value="3.00" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">defaults to RE price (conservative); tracks it unless you edit</div></div>
+            <button type="button" id="reset" class="resetbtn">&#8635; Reset charges to order defaults</button>
+          </div>
+        </details>
+      </form>
+    </section>
+
+    <!-- RESULT -->
+    <section class="result">
+      <div class="readout">
+        <div class="lbl">Net monthly saving &mdash; <b id="catName" style="color:var(--ink)">HT I(A) Industry</b></div>
+        <div class="hero" id="hero"><span class="cur">&#8377;</span><span class="num" id="heroSave">&ndash;</span><span class="unit" id="heroUnit">lakh / month</span></div>
+        <div class="heroline"><span class="pu" id="puOut">&ndash;</span> per unit offset <span class="sep">&middot;</span> <span class="yr" id="yrOut">&ndash;</span></div>
+        <div class="metricdiv"></div>
+        <div class="lbl">Discounted payback on your equity</div>
+        <div class="hero" id="heroPbBox"><span class="num" id="heroPb">&ndash;</span><span class="unit" id="heroPbUnit">years</span></div>
+        <div class="heroline" id="pbSub">&ndash;</div>
+      </div>
+
+      <div class="advice s3" id="adviceBox">
+        <div>
+          <div class="ah" id="adviceHead">Recommendation</div>
+          <div class="at" id="adviceText">Enter your figures to see the recommendation.</div>
+        </div>
+      </div>
+
+      <div class="verdict save" id="verdict">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="vt" id="verdictText">Enter your figures to see the net saving.</div>
+      </div>
+
+      <div class="spill" id="spillBox" style="display:none">
+        <div class="sh" id="spillHead">&#9888; Stranded generation &middot; para 18.21</div>
+        <div id="spillText">&ndash;</div>
+      </div>
+
+      <div class="warnbox" id="warnBox" style="display:none">
+        <div class="whead" id="warnHead">Check your inputs</div>
+        <ul id="warnList"></ul>
+      </div>
+
+      <button type="button" class="showbtn" id="showBtn">Show the full working <span class="chev">&#9662;</span></button>
+    </section>
+  </div>
+
+  <!-- DETAILS -->
+  <div id="details">
+    <section class="card dsec">
+      <div class="card-head"><h2>Monthly energy &amp; saving, slot by slot</h2>
+        <div class="sub">Generation is matched to consumption under the para 18.21 banking rules, filling the highest-value (peak) demand first. Matched energy saves the retail rate of that slot less the OA cost; energy that cannot be matched is stranded and is a loss at the surplus rate.</div></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Consumption slot</th><th>Consumed</th><th>Offset by OA</th><th>Met from</th><th>Saving &#8377;/unit</th><th>Saving &#8377;/mo</th></tr></thead>
+        <tbody id="allocBody"></tbody>
+      </table></div>
+    </section>
+
+    <section class="card dsec">
+      <div class="card-head"><h2>Saving per unit, by time-of-day slot</h2>
+        <div class="sub">The ToD adjustment lands on the retail energy charge only, so the retail rate &mdash; and the saving &mdash; differ by slot. Solar hours carry the deepest rebate (smallest saving); peak hours carry the premium (largest saving).</div></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>ToD slot</th><th>Hours</th><th>ToD on EC</th><th>Retail &#8377;/unit</th><th>OA &#8377;/unit</th><th>Saving &#8377;/unit</th><th>Banked energy usable in</th></tr></thead>
+        <tbody id="slotBody"></tbody>
+      </table></div>
+      <div class="buildup">
+        <h3>How the open-access cost per unit is built</h3>
+        <div class="lrow"><span class="k">RE power, grossed up for both losses <small id="lossNote">&ndash;</small></span><span class="v" id="d_re">&ndash;</span></div>
+        <div class="lrow op"><span class="k">transmission charge</span><span class="v" id="d_tc">&ndash;</span></div>
+        <div class="lrow op"><span class="k">wheeling charge</span><span class="v" id="d_wc">&ndash;</span></div>
+        <div class="lrow op"><span class="k">cross-subsidy surcharge</span><span class="v" id="d_css">&ndash;</span></div>
+        <div class="lrow op"><span class="k">additional surcharge</span><span class="v" id="d_addl">&ndash;</span></div>
+        <div class="lrow op"><span class="k">operating charges <small id="opNote">&ndash;</small></span><span class="v" id="d_op">&ndash;</span></div>
+        <div class="lrow subtot"><span class="k">Open-access cost per unit</span><span class="v" id="d_oa">&ndash;</span></div>
+      </div>
+    </section>
+
+    <section class="card dsec">
+      <div class="card-head"><h2>Where banked energy may be drawn &mdash; para 18.21</h2>
+        <div class="sub">Banked energy may be shifted only <i>down</i> the value ladder, never <i>up</i> into peak. Slots where you generate are outlined; tags show which demand that energy may serve.</div></div>
+      <div class="bankgrid" id="bankGrid"></div>
+    </section>
+
+    <section class="card dsec">
+      <div class="card-head"><h2>Investment &amp; payback</h2>
+        <div class="sub">Group-captive structure: equity is 30% of project cost and you hold 26% of that equity, so your cash outlay is 7.8% of project cost. Payback is the point where <b>cumulative</b> net saving (year by year, on each year&rsquo;s tariffs) recovers your equity &mdash; no discounting.</div></div>
+      <div class="annual" style="margin-top:12px">
+        <div><div class="al">Project cost</div><div class="av" id="p_proj">&ndash;</div></div>
+        <div><div class="al">Total equity (30%)</div><div class="av" id="p_eq">&ndash;</div></div>
+        <div><div class="al">Your equity (26% of equity)</div><div class="av" id="p_ceq">&ndash;</div></div>
+        <div><div class="al">Return on equity</div><div class="av" id="p_roe">&ndash;</div></div>
+        <div><div class="al">Simple payback (FY29-30 flat)</div><div class="av" id="p_pb">&ndash;</div></div>
+        <div><div class="al">Discounted payback @ RoE</div><div class="av" id="p_disc">&ndash;</div></div>
+        <div style="grid-column:1/-1;border-top:1px solid var(--line);padding-top:10px;font-family:var(--sans);font-size:12px;color:var(--muted);line-height:1.5" id="p_note">Your equity is returned <b>interest-free</b> at the end of the PPA; the discounted payback values the annual savings at your return on equity.</div>
+      </div>
+    </section>
+
+    <section class="card dsec">
+      <div class="card-head"><h2>Year-by-year saving &amp; payback</h2>
+        <div class="sub">Each year uses that year&rsquo;s tariffs from the order &mdash; energy charge, wheeling, CSS, transmission and the stepped ToD rebate (solar-hours rebate deepens to 25% from FY&nbsp;2027-28). Generation, consumption and RE price are held constant. Payback is where cumulative saving crosses your equity; <b>beyond FY&nbsp;2029-30 the net saving is held flat at the FY&nbsp;2029-30 level</b> (those years are shown as &ldquo;flat&rdquo;). Tariffs beyond FY&nbsp;2029-30 aren&rsquo;t set in this order.</div></div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Financial year</th><th>Solar ToD</th><th>Net &#8377;/month</th><th>Net &#8377;/year</th><th>Cumulative</th></tr></thead>
+        <tbody id="yearBody"></tbody>
+      </table></div>
+    </section>
+
+    <section class="card dsec">
+      <div class="card-head"><h2>Annual view <span style="font-weight:400;color:var(--faint)" id="annYr"></span></h2></div>
+      <div class="annual" style="margin-top:12px">
+        <div><div class="al">Net saving</div><div class="av" id="a_net">&ndash;</div></div>
+        <div><div class="al">Stranded-energy loss</div><div class="av neg" id="a_loss">&ndash;</div></div>
+        <div><div class="al">Energy offset by OA</div><div class="av" id="a_off">&ndash;</div></div>
+        <div><div class="al">Generation stranded</div><div class="av" id="a_spill">&ndash;</div></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ASSUMPTIONS -->
+  <div class="notebox">
+    <div class="nh">Notes on the figures used</div>
+    <div class="nb"><ul>
+      <li><b>Pick a tariff category and all charges reload.</b> Energy charge and wheeling charge come from page 100, cross-subsidy surcharge from page 106 (its EHV and HT values differ for some categories), and the ToD rebate/charge from Table 8 (pg 76-77), all for FY 2026-27. Operating charges, transmission charge and transmission loss do <b>not</b> change with category.</li>
+      <li><b>Stranded energy is valued at the RE price</b> (the conservative choice: you pay your PPA for that energy and receive nothing, because MSEDCL pays nil against the &#8377;2.24/unit surplus tariff). You may, at your discretion, lower the rate in the charges panel to <b>&ldquo;RE price &minus; &#8377;2.24&rdquo;</b> &mdash; but that assumes MSEDCL actually pays the surplus tariff, so it is <b>not a conservative approach</b>.</li>
+      <li><b>Stranded generation is capped at 10% of total generation.</b> If your plant breaches this the tool flags it &mdash; use <b>Optimise</b> or raise daytime consumption.</li>
+      <li><b>Banking is worked down the value ladder</b> (para 18.21): peak surplus serves peak, then normal, then solar demand; normal surplus serves normal then solar; solar surplus can serve only solar and is otherwise stranded. <b>Optimise</b> sweeps plant sizes and picks the MW with the highest net saving within the 10% cap.</li>
+      <li><b>ToD rebate on solar hours is taken as 20%</b> (average of 15% Apr&ndash;Sep and 25% Oct&ndash;Mar). Group Housing Societies instead receive the Rs/unit ToD rebate (&#8377;0.85/unit for FY27, shown as its % equivalent). ToD applicability for agriculture/residential should be verified against the full schedule; the ToD fields are editable.</li>
+      <li><b>Payback is multi-year and honest.</b> Each year&rsquo;s net saving is computed on that year&rsquo;s tariffs (page 100-103 energy/wheeling, 106/108/110/112 CSS, InSTS transmission, and the stepped ToD rebate); the payback is the year cumulative saving recovers your equity (30% of project cost &times; your 26% share = 7.8% of cost, at &#8377;4.5 cr/MW by default, all editable). Because the solar-hours rebate deepens to 25% from FY&nbsp;2027-28 while energy charges fall, the solar-hour saving shrinks over time &mdash; so a single good first year can be misleading. <b>Beyond FY&nbsp;2029-30 the net saving is assumed to continue at the FY&nbsp;2029-30 level (held flat)</b> to compute the payback period; if the FY&nbsp;2029-30 net saving is not positive, the equity is reported as not recovered. The <b>Financial year</b> selector switches every charge and the snapshot to that year; the year-by-year table shows the full path. RE price is held flat and no panel degradation is applied, as you specified.</li><li><b>Discounted payback &amp; the recommendation.</b> Your equity is returned <b>interest-free at the end of the PPA</b>, so its real cost is the return you forgo on it &mdash; the discounted payback therefore values each year&rsquo;s saving at your <b>return on equity</b> (15% p.a. by default, editable). The recommendation follows the savings trajectory: <b>no saving in FY 2026-27</b> &rarr; do not enter a group-captive arrangement; <b>savings that vanish in a later year</b> &rarr; take a medium-term agreement only up to the last year with savings; <b>savings through FY 2029-30</b> &rarr; a long-term PPA is safe today. Discounted payback is shown for the latter two.</li>
+    </ul></div>
+  </div>
+
+  <div class="notebox cautionbox" id="cautionBox" style="display:none">
+    <div class="nh">&#9888; Charges changed from reference values</div>
+    <div class="nb"><p style="margin-bottom:8px">These differ from the MERC / InSTS order values (or the &#8377;2.24 surplus rate). The result uses your edited figures:</p><ul id="cautionList"></ul></div>
+  </div>
+
+  <details class="method">
+    <summary>Method &amp; formulae <span class="chev">&#9662;</span></summary>
+    <div class="notes">
+      <p>For a slot with ToD factor <code>t</code> (&minus;0.20 solar, 0 normal, +0.20 peak):</p>
+      <div class="eq">Retail rate R = EC &times; (1 + t) + wheeling&nbsp;charge<br>
+      RE per delivered unit P = RE&nbsp;price &divide; [(1 &minus; txn&nbsp;loss)(1 &minus; wheeling&nbsp;loss)]<br>
+      OA cost O = P + txn&nbsp;charge + wheeling&nbsp;charge + CSS + addl + op&#8202;&divide;&#8202;units<br>
+      Saving per matched unit in slot = R &minus; O</div>
+      <p>Generation is matched to demand to maximise saving (peak first, then normal, then solar) within the banking limits &mdash; solar&rarr;solar only, normal&rarr;normal&amp;solar, peak&rarr;all. Then:</p>
+      <div class="eq">Stranded = deliverable generation &minus; matched<br>
+      Stranded loss = surplus&nbsp;rate &times; stranded<br>
+      <b>Net saving = &Sigma;(matched &times; slot saving) &minus; stranded loss</b></div>
+      <p><b>Optimise</b> maximises net saving over plant capacity, subject to stranded &le; 10% of deliverable generation. <b>Units:</b> one unit = one kVAh; generation input is kWh per MW per month &times; capacity.</p>
+    </div>
+  </details>
+
+  <div class="ref">
+    <b>SOURCES</b>
+    <span class="cite">MERC Order, Case No. 75 of 2025 (25 Mar 2026): Table 8 ToD &rarr; pg 76-77 &middot; para 18.21 banking &rarr; pg 79 &middot; HT I(A) energy &amp; wheeling charge &rarr; pg 100 &middot; CSS &amp; wheeling loss &rarr; pg 106. &nbsp; MYT Order for InSTS, Case No. 208 of 2024 (28 Mar 2025): transmission tariff &rarr; Table 20 &middot; transmission loss &rarr; Table 29. &nbsp; Maharashtra Distribution Open Access Regulations: 10% stranded-energy cap &amp; surplus settlement at previous-year competitive solar tariff.</span>
+  </div>
+
+  <footer>Planning-level estimate for an HT open-access consumer, FY 2026-27. Verify all charges against the operative orders before acting.</footer>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var num=function(id){var v=parseFloat($(id).value);return isNaN(v)?0:v};
+  function rup(n,d){return n.toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d})}
+  function grp(n){return Math.round(n).toLocaleString('en-IN')}
+  var RS='\u20B9', MINUS='\u2212';
+  var BANDNAME={normal:'Normal',solar:'Solar hours',peak:'Peak hours'};
+  var BANDHRS={normal:'00:00\u201309:00',solar:'09:00\u201317:00',peak:'17:00\u201324:00'};
+  var USABLE={normal:['normal','solar'],solar:['solar'],peak:['peak','normal','solar']};
+  var FYLABEL=['FY 2026-27','FY 2027-28','FY 2028-29','FY 2029-30'];
+
+  // year-wise (index 0..3 = FY26-27..FY29-30)
+  var Y={ wcht:[0.81,0.82,0.81,0.80], tc:[1.02,1.06,1.04,1.00], tl:[3.26,3.24,3.22,3.20],
+          sreb:[20,25,25,25], ghsrs:[0.85,0.90,0.90,1.00] };
+  var CATS={
+    ind :{n:'HT I(A) Industry',                 ec:[8.44,8.23,7.52,7.45], cssE:[2.07,2.05,1.96,1.94], cssH:[2.07,2.05,1.87,1.83], tod:'pct'},
+    inds:{n:'HT I(B) Industry (Seasonal)',      ec:[8.47,8.22,7.52,7.47], cssE:[2.07,2.05,1.96,1.94], cssH:[2.07,2.05,1.96,1.94], tod:'pct'},
+    com :{n:'HT II Commercial',                 ec:[13.72,13.29,12.47,12.23], cssE:[2.07,2.05,1.96,1.94], cssH:[2.07,2.05,1.96,1.94], tod:'pct'},
+    rail:{n:'HT III Railways/Metro',            ec:[7.29,7.03,6.83,6.68], cssE:[2.07,2.05,1.96,1.94], cssH:[2.07,2.05,1.96,1.94], tod:'pct'},
+    pww :{n:'HT IV Public Water Works',         ec:[7.98,7.83,7.81,7.77], cssE:[1.91,1.68,1.46,1.38], cssH:[2.07,2.00,1.83,1.82], tod:'pct'},
+    agp :{n:'HT V(A) Agriculture Pumpsets',     ec:[5.80,5.62,4.75,4.71], cssE:[0,0,0,0], cssH:[0,0.41,0,0], tod:'pct'},
+    ago :{n:'HT V(B) Agriculture Others',       ec:[8.24,8.23,8.23,8.18], cssE:[0,0,0,0], cssH:[1.65,1.66,1.60,1.58], tod:'pct'},
+    ghs :{n:'HT VI Group Housing',              ec:[7.28,7.26,7.26,7.26], cssE:[0,0,0,0], cssH:[1.42,1.28,1.08,1.05], tod:'rs'},
+    psg :{n:'HT VIII Public Services (Govt)',   ec:[10.35,10.01,9.18,9.13], cssE:[0,0,0,0], cssH:[2.07,2.05,1.96,1.94], tod:'pct'},
+    pso :{n:'HT VIII(B) Public Services (Other)',ec:[11.21,10.89,10.04,9.73], cssE:[0,0,0,0], cssH:[2.07,2.05,1.96,1.94], tod:'pct'},
+    ev  :{n:'HT IX EV Charging',                ec:[8.92,8.91,8.92,8.92], cssE:[0,0,0,0], cssH:[1.56,1.44,1.26,1.24], tod:'pct'}
+  };
+  function catObj(){return CATS[$('cat').value]||CATS.ind;}
+  function yrIdx(){return parseInt($('fy').value,10)||0;}
+
+  function canon(){
+    var c=catObj(), volt=$('volt').value, mw=num('mw'), yi=yrIdx();
+    var sreb,pchg;
+    if(c.tod==='rs'){ sreb=Math.round(Y.ghsrs[yi]/c.ec[yi]*10000)/100; pchg=0; } else { sreb=Y.sreb[yi]; pchg=20; }
+    return {ec:c.ec[yi], css:(volt==='EHV'?c.cssE[yi]:c.cssH[yi]), sreb:sreb, pchg:pchg,
+            tc:Y.tc[yi], tl:Y.tl[yi], wc:volt==='EHV'?0:Y.wcht[yi], wl:volt==='EHV'?0:7.5,
+            addl:0, surplus:num('ppc'), op:mw<=5?16500:31850};
+  }
+  var LABELS={ec:'Energy charge',sreb:'Solar ToD rebate',pchg:'Peak ToD charge',tc:'Transmission charge',tl:'Transmission loss',wc:'Wheeling charge',wl:'Wheeling loss',css:'Cross-subsidy surcharge',addl:'Additional surcharge',surplus:'Surplus energy rate',op:'Operating charges'};
+  var UNITS={ec:RS,sreb:'%',pchg:'%',tc:RS,tl:'%',wc:RS,wl:'%',css:RS,addl:RS,surplus:RS,op:RS};
+  function fmtVal(k,v){return UNITS[k]===RS?RS+(k==='op'?grp(v):rup(v,2)):rup(v,2)+'%';}
+  function applyDefaults(){var c=canon();$('ec').value=c.ec;$('css').value=c.css;$('sreb').value=c.sreb;$('pchg').value=c.pchg;$('tc').value=c.tc;$('tl').value=c.tl;$('wc').value=c.wc;$('wl').value=c.wl;$('op').value=c.op;}
+  function syncOp(){$('op').value=(num('mw')<=5?16500:31850);}
+  function syncSurplus(){$('surplus').value=rup(num('ppc'),2);}
+
+  function readInputs(){return {ppc:num('ppc'),
+    EC:num('ec'),SREB:num('sreb')/100,PCHG:num('pchg')/100,TC:num('tc'),TL:num('tl')/100,
+    WC:num('wc'),WL:num('wl')/100,CSS:num('css'),ADDL:num('addl'),OP:num('op'),surplus:num('surplus'),
+    sgpm:num('gsolar'),ngpm:num('gnormal'),pgpm:num('gpeak'),cs:num('csolar'),cn:num('cnormal'),cp:num('cpeak')};}
+
+  // inputs for a given year, from order tariffs + live project inputs (used for the multi-year payback)
+  function yearInputs(yi){
+    var c=catObj(), volt=$('volt').value, sreb,pchg;
+    if(c.tod==='rs'){ sreb=Y.ghsrs[yi]/c.ec[yi]; pchg=0; } else { sreb=Y.sreb[yi]/100; pchg=0.20; }
+    return {ppc:num('ppc'), EC:c.ec[yi], SREB:sreb, PCHG:pchg, TC:Y.tc[yi], TL:Y.tl[yi]/100,
+      WC:volt==='EHV'?0:Y.wcht[yi], WL:volt==='EHV'?0:0.075, CSS:(volt==='EHV'?c.cssE[yi]:c.cssH[yi]),
+      ADDL:0, OP:num('op'), surplus:num('ppc'),
+      sgpm:num('gsolar'),ngpm:num('gnormal'),pgpm:num('gpeak'),cs:num('csolar'),cn:num('cnormal'),cp:num('cpeak')};
+  }
+
+  function model(mw,inp){
+    inp=inp||readInputs();
+    var delFac=(1-inp.TL)*(1-inp.WL);
+    var Gs=inp.sgpm*mw,Gn=inp.ngpm*mw,Gp=inp.pgpm*mw;
+    var Ds=Gs*delFac,Dn=Gn*delFac,Dp=Gp*delFac,delTotal=Ds+Dn+Dp,genInj=Gs+Gn+Gp;
+    var opPu=delTotal>0?inp.OP/delTotal:0, rePu=delFac>0?inp.ppc/delFac:0;
+    var oaCost=rePu+inp.TC+inp.WC+inp.CSS+inp.ADDL+opPu;
+    var retail=function(b){var t=b==='solar'?-inp.SREB:(b==='peak'?inp.PCHG:0);return inp.EC*(1+t)+inp.WC;};
+    var sav={peak:retail('peak')-oaCost,normal:retail('normal')-oaCost,solar:retail('solar')-oaCost};
+    // banking DOWN; offset whenever it beats stranding (sav > -surplus), else leave to strand
+    var thr=-inp.surplus;
+    var dp=Dp,dn=Dn,ds=Ds,rp=inp.cp,rn=inp.cn,rs=inp.cs;
+    var off={peak:0,normal:0,solar:0},src={peak:{},normal:{},solar:{}};
+    if(sav.peak>thr){var t=Math.min(rp,dp);off.peak+=t;dp-=t;rp-=t;src.peak.peak=t;}
+    if(sav.normal>thr){var a=Math.min(rn,dn);off.normal+=a;dn-=a;rn-=a;src.normal.normal=a;var b=Math.min(rn,dp);off.normal+=b;dp-=b;rn-=b;src.normal.peak=b;}
+    if(sav.solar>thr){var u=Math.min(rs,ds);off.solar+=u;ds-=u;rs-=u;src.solar.solar=u;var v=Math.min(rs,dn);off.solar+=v;dn-=v;rs-=v;src.solar.normal=v;var w=Math.min(rs,dp);off.solar+=w;dp-=w;rs-=w;src.solar.peak=w;}
+    var spilled=ds+dn+dp,spillBy={solar:ds,normal:dn,peak:dp},unmet=rp+rn+rs;
+    var offTotal=off.peak+off.normal+off.solar;
+    var grossSave=off.peak*sav.peak+off.normal*sav.normal+off.solar*sav.solar;
+    var strandedLoss=inp.surplus*spilled, netSave=grossSave-strandedLoss;
+    var strandedPct=delTotal>0?spilled/delTotal*100:0;
+    return {mw:mw,delFac:delFac,Gs:Gs,Gn:Gn,Gp:Gp,Ds:Ds,Dn:Dn,Dp:Dp,delTotal:delTotal,genInj:genInj,
+      opPu:opPu,rePu:rePu,oaCost:oaCost,retail:retail,sav:sav,off:off,src:src,spilled:spilled,spillBy:spillBy,
+      unmet:unmet,offTotal:offTotal,grossSave:grossSave,strandedLoss:strandedLoss,netSave:netSave,strandedPct:strandedPct,
+      consTot:inp.cs+inp.cn+inp.cp,inp:inp};
+  }
+
+  // multi-year cumulative payback: 4 order years, then FY29-30 net saving held flat
+  function multiPayback(){
+    var mw=num('mw');
+    var consEq=num('eqcons')/100*num('eqproj')/100*num('costmw')*mw*1e7;
+    var ann=[]; for(var yi=0;yi<4;yi++) ann.push(model(mw,yearInputs(yi)).netSave*12);
+    var rows=[],cum=0,pb=null;
+    for(var y=0;y<4;y++){ var st=cum; cum+=ann[y]; rows.push({y:y,ann:ann[y],cum:cum,mo:ann[y]/12,flat:false});
+      if(pb===null && ann[y]>0 && st<consEq && cum>=consEq) pb=y+(consEq-st)/ann[y]; }
+    var cum4=cum;
+    if(pb===null && ann[3]>0){
+      for(var y2=4;y2<40 && pb===null;y2++){ var st2=cum; cum+=ann[3]; rows.push({y:y2,ann:ann[3],cum:cum,mo:ann[3]/12,flat:true});
+        if(st2<consEq && cum>=consEq) pb=y2+(consEq-st2)/ann[3]; }
+    }
+    return {rows:rows,consEq:consEq,pb:pb,cum4:cum4,a3:ann[3]};
+  }
+  function fyLabelIdx(y){ return 'FY '+(2026+y)+'-'+('0'+((2027+y)%100)).slice(-2); }
+
+  // scenario classification + discounted payback at RoE
+  function scenarioAndDisc(){
+    var mw=num('mw'); var consEq=num('eqcons')/100*num('eqproj')/100*num('costmw')*mw*1e7;
+    var r=num('roe')/100;
+    var ann=[]; for(var yi=0;yi<4;yi++) ann.push(model(mw,yearInputs(yi)).netSave*12);
+    var scen,lastPos=null;
+    if(ann[0]<=0){ scen=1; }
+    else { var fn=-1; for(var k=0;k<4;k++){ if(ann[k]<=0){fn=k;break;} } if(fn<0){scen=3;} else {scen=2;lastPos=fn-1;} }
+    var disc=null,cumPV=0;
+    if(scen!==1){
+      var horizon = scen===2 ? lastPos : 3;
+      var extendFlat = scen===3 && ann[3]>0;
+      var cum=0,pb=null;
+      for(var y=0;y<80;y++){
+        var a; if(y<=horizon) a=ann[y]; else if(extendFlat) a=ann[3]; else break;
+        var pv=a/Math.pow(1+r,y+1), st=cum; cum+=pv;
+        if(pb===null && pv>0 && st<consEq && cum>=consEq) pb=y+(consEq-st)/pv;
+      }
+      disc=pb; cumPV=cum;
+    }
+    return {ann:ann,consEq:consEq,scen:scen,lastPos:lastPos,disc:disc,cumPV:cumPV,r:r};
+  }
+
+  function optimize(inp){
+    inp=inp||readInputs();
+    var perMWdel=(inp.sgpm+inp.ngpm+inp.pgpm)*(1-inp.TL)*(1-inp.WL), consTot=inp.cs+inp.cn+inp.cp;
+    if(perMWdel<=0||consTot<=0) return null;
+    var maxMW=Math.max(consTot/perMWdel*3,5), step=Math.max(maxMW/2500,0.02), best=null;
+    for(var mw=step;mw<=maxMW+1e-9;mw+=step){
+      var r=model(mw,inp);
+      if(r.strandedPct<=10.0001 && (best===null||r.netSave>best.net)) best={mw:mw,net:r.netSave,sp:r.strandedPct};
+    }
+    if(best) best.mw=Math.round(best.mw*10)/10;
+    return {best:best};
+  }
+
+  function moneyMonth(x){ if(Math.abs(x)>=1e5) return [(x<0?MINUS:'')+rup(Math.abs(x)/1e5,2),'lakh / month']; return [(x<0?MINUS:'')+grp(Math.abs(x)),'/ month']; }
+
+  function render(r){
+    var inp=r.inp, yi=yrIdx();
+    $('catName').textContent=catObj().n+' \u00B7 '+FYLABEL[yi];
+    $('ecLabel').textContent=catObj().n.split(' ').slice(0,2).join(' ');
+    $('annYr').textContent='\u00B7 '+FYLABEL[yi];
+    var mm=moneyMonth(r.netSave);
+    $('heroSave').textContent=mm[0]; $('heroUnit').textContent=mm[1];
+    $('hero').classList.toggle('neg',r.netSave<0);
+    var blendedNet=r.offTotal>0?r.netSave/r.offTotal:0;
+    $('puOut').textContent=(blendedNet<0?MINUS+RS:RS)+rup(Math.abs(blendedNet),2);
+    $('yrOut').textContent=(r.netSave<0?MINUS:'')+RS+rup(Math.abs(r.netSave*12)/1e7,2)+' cr / year';
+
+    // ---- payback: simple (flat) + discounted + scenario advice ----
+    var mp=multiPayback(), sd=scenarioAndDisc();
+    var mw=num('mw'), costMW=num('costmw'), proj=costMW*mw, totEq=num('eqproj')/100*proj, consEq=mp.consEq/1e7;
+    var pbBox=$('heroPbBox'); pbBox.classList.remove('na');
+    if(mw<=0||mp.consEq<=0){pbBox.classList.add('na');$('heroPb').textContent='\u2013';$('heroPbUnit').textContent='';$('pbSub').textContent='enter capacity & project cost';}
+    else if(sd.scen===1){pbBox.classList.add('na');$('heroPb').textContent='\u2014';$('heroPbUnit').textContent='';$('pbSub').innerHTML='not applicable &mdash; no saving in FY 2026-27';}
+    else if(sd.disc!==null){$('heroPb').textContent=rup(sd.disc,1);$('heroPbUnit').textContent='years';$('pbSub').innerHTML='discounted at '+rup(sd.r*100,1)+'% p.a. \u00B7 equity returns interest-free at PPA end';}
+    else {pbBox.classList.add('na');$('heroPb').textContent='\u2014';$('heroPbUnit').textContent='';$('pbSub').innerHTML='equity not recovered at '+rup(sd.r*100,1)+'% RoE'+(sd.scen===2?' within the medium term':'');}
+    // advice
+    var ab=$('adviceBox'); ab.className='advice s'+sd.scen;
+    if(sd.scen===1){$('adviceHead').textContent='Recommendation \u2014 do not proceed';
+      $('adviceText').innerHTML='There is <b>no saving even in FY 2026-27</b> for this category and these inputs. Do <b>not</b> enter a captive IPP (group-captive) arrangement. Payback is not applicable.';}
+    else if(sd.scen===2){$('adviceHead').textContent='Recommendation \u2014 medium-term only';
+      $('adviceText').innerHTML='Savings disappear from <b>'+FYLABEL[sd.lastPos+1]+'</b>. Enter a <b>medium-term</b> captive IPP (group-captive) agreement <b>only up to '+FYLABEL[sd.lastPos]+'</b>. '+(sd.disc!==null?'Discounted payback <b>'+rup(sd.disc,1)+' years</b> at '+rup(sd.r*100,1)+'% RoE.':'Your equity is <b>not</b> recovered within that term (it is returned interest-free at exit).');}
+    else {$('adviceHead').textContent='Recommendation \u2014 long-term is safe';
+      $('adviceText').innerHTML='Savings persist <b>through FY 2029-30</b>, so it is <b>safe to enter a long-term PPA as of today</b>. '+(sd.disc!==null?'Discounted payback <b>'+rup(sd.disc,1)+' years</b> at '+rup(sd.r*100,1)+'% RoE (FY 2029-30 saving held flat thereafter).':'Even discounted at '+rup(sd.r*100,1)+'% RoE the equity is not recovered.');}
+    // investment card
+    $('p_proj').innerHTML=RS+rup(proj,2)+' <small>cr</small>';
+    $('p_eq').innerHTML=RS+rup(totEq,2)+' <small>cr</small>';
+    $('p_ceq').innerHTML=RS+rup(consEq,2)+' <small>cr</small>';
+    $('p_roe').innerHTML=rup(sd.r*100,1)+'<small>% p.a.</small>';
+    $('p_pb').textContent = mp.pb!==null? rup(mp.pb,1)+' years' : 'not recovered';
+    $('p_disc').textContent = sd.scen===1? 'n/a' : (sd.disc!==null? rup(sd.disc,1)+' years' : 'not recovered');
+
+    // ---- verdict ----
+    var vd=$('verdict'),vt=$('verdictText'); vd.className='verdict';
+    if(r.offTotal<=0 && r.spilled<=0){vd.classList.add('marg');vt.innerHTML='No generation could be matched to consumption &mdash; check your entries.';}
+    else if(r.netSave>1){vd.classList.add('save');vt.innerHTML='In '+FYLABEL[yi]+', open access nets about <b>'+RS+rup(blendedNet,2)+' per unit</b> on the '+grp(r.offTotal/1000)+' MWh/month it offsets. See the year-by-year table for how this changes to FY29-30.';}
+    else if(r.netSave<-1){vd.classList.add('cost');vt.innerHTML='In '+FYLABEL[yi]+', open access does not beat retail &mdash; the deeper solar-hour ToD rebate makes solar-hour energy cheaper to buy than to wheel. Check the year-by-year table.';}
+    else {vd.classList.add('marg');vt.innerHTML='In '+FYLABEL[yi]+', open access roughly breaks even after the stranded-energy loss.';}
+
+    // ---- spill ----
+    var sb=$('spillBox'),st=$('spillText'),shd=$('spillHead');
+    if(r.spilled>1){sb.style.display='block';var over=r.strandedPct>10;sb.classList.toggle('over',over);
+      shd.innerHTML=(over?'&#9888; Stranded generation exceeds the 10% cap':'&#9888; Stranded generation &middot; para 18.21');
+      st.innerHTML='<span class="amt">'+grp(r.spilled/1000)+' MWh/month</span> ('+rup(r.strandedPct,1)+'% of generation) has no eligible demand and is a <b>loss of '+RS+grp(r.strandedLoss)+'/month</b> at '+RS+rup(inp.surplus,2)+'/unit.'+(over?' Above the <b>10% limit</b>.':'')+' Click <b>Optimise</b>.';
+    } else sb.style.display='none';
+
+    // ---- warnings ----
+    var W=[],fld={}; function flag(id,sev){if(fld[id]==='bad')return;fld[id]=sev;}
+    var src=$('src').value;
+    var perMW=inp.sgpm+inp.ngpm+inp.pgpm, cuf=perMW>0?perMW/730000*100:0;
+    $('cufOut').textContent=perMW>0?rup(cuf,1)+'%  ('+grp(perMW/1000)+' MWh/MW/mo)':'\u2013';
+    var band=src==='solar'?{lo:8,hi:30,txt:'solar is ~16&ndash;22%'}:(src==='wind'?{lo:12,hi:50,txt:'wind is ~25&ndash;40%'}:{lo:5,hi:65,txt:'most RE plants are ~15&ndash;45%'});
+    if(perMW>0){ if(cuf<band.lo){W.push({t:'err',html:'<b>Generation looks too low.</b> Implied CUF '+rup(cuf,1)+'% &mdash; '+band.txt+'. Looks like a <b>daily</b> figure or a <b>percentage</b>.'});flag('gsolar','bad');}
+      else if(cuf>band.hi){W.push({t:'err',html:'<b>Generation looks too high.</b> Implied CUF '+rup(cuf,1)+'% &mdash; looks like an <b>annual</b> figure.'});flag('gsolar','bad');} }
+    if(src==='solar'){
+      if(inp.sgpm>0&&inp.pgpm>0.25*inp.sgpm){W.push({t:'cau',html:'<b>Peak-slot generation looks high for solar.</b> 17:00&ndash;24:00 is mostly evening/night.'});flag('gpeak','warnf');}
+      if(inp.sgpm>0&&inp.ngpm>0.4*inp.sgpm){W.push({t:'cau',html:'<b>Normal-slot generation looks high for solar.</b> 00:00&ndash;06:00 is night (~nil).'});flag('gnormal','warnf');}
+      if(perMW>0&&inp.sgpm<(inp.ngpm+inp.pgpm)){W.push({t:'cau',html:'<b>Solar-hour generation should be the largest slot for solar.</b>'});flag('gsolar','warnf');}
+      if(inp.pgpm>0&&inp.sgpm===0){W.push({t:'err',html:'Generation in peak/night hours but <b>none in solar hours</b> &mdash; check the slot mapping.'});flag('gsolar','bad');}
+    } else if(perMW>0){ W.push({t:'inf',html:'<b>'+(src==='wind'?'Wind':'Other-RE')+' profile:</b> generation may fall in any slot, so slot-shape checks are relaxed &mdash; only overall CUF is sanity-checked. \u201cSolar hours\u201d here is just the 09:00&ndash;17:00 ToD slot.'}); }
+    var consTot=inp.cs+inp.cn+inp.cp;
+    [['csolar',inp.cs,'solar'],['cnormal',inp.cn,'normal'],['cpeak',inp.cp,'peak']].forEach(function(x){
+      if(x[1]>0&&x[1]<=100){W.push({t:'err',html:'<b>'+BANDNAME[x[2]]+' consumption = '+grp(x[1])+'</b> looks like a <b>percentage</b>, not monthly kWh.'});flag(x[0],'bad');}
+      else if(x[1]>100&&x[1]<=2000){W.push({t:'cau',html:'<b>'+BANDNAME[x[2]]+' consumption = '+grp(x[1])+'</b> looks like a <b>daily</b> figure.'});flag(x[0],'warnf');}});
+    if(consTot>0&&r.delTotal>0){var ratio=consTot/r.delTotal;
+      if(ratio>=11)W.push({t:'cau',html:'<b>Total consumption is '+rup(ratio,0)+'\u00D7 generation</b> &mdash; may be an <b>annual</b> figure.'});
+      else if(ratio<=1/25)W.push({t:'cau',html:'<b>Consumption is tiny vs generation</b> &mdash; may be a <b>daily</b> figure.'});}
+    if(consTot===0)W.push({t:'err',html:'Enter your monthly consumption to compute a saving.'});
+    if(mw<=0){W.push({t:'err',html:'Enter the OA capacity in MW &mdash; or click <b>Optimise</b>.'});flag('mw','bad');}
+    if(r.strandedPct>10)W.push({t:'err',html:'<b>Stranded generation is '+rup(r.strandedPct,1)+'%</b> &mdash; above the <b>10% limit</b>. Click <b>Optimise</b> or raise daytime consumption.'});
+    if(catObj().tod==='rs')W.push({t:'inf',html:'This category uses the <b>Rs/unit ToD rebate</b> (&#8377;'+rup(Y.ghsrs[yi],2)+'/unit in '+FYLABEL[yi]+'), shown as its % equivalent.'});
+    ['mw','gsolar','gnormal','gpeak','csolar','cnormal','cpeak'].forEach(function(id){var el=$(id);el.classList.remove('bad','warnf');if(fld[id])el.classList.add(fld[id]);});
+    var wb=$('warnBox');
+    if(W.length){wb.style.display='block';var nerr=W.filter(function(x){return x.t==='err'}).length;
+      $('warnHead').textContent=nerr?'Please check these':'Notes on your inputs';
+      var icon={err:'\u2715',cau:'\u26A0',inf:'\u2139'};
+      $('warnList').innerHTML=W.map(function(x){return '<li class="'+x.t+'"><span class="ic">'+icon[x.t]+'</span><span>'+x.html+'</span></li>'}).join('');
+    } else wb.style.display='none';
+
+    // ---- allocation ----
+    var ah='';
+    [['peak',inp.cp],['normal',inp.cn],['solar',inp.cs]].forEach(function(o){
+      var b=o[0],cons=o[1],of=r.off[b],sv=r.sav[b],srcs=[];
+      Object.keys(r.src[b]).forEach(function(g){if(r.src[b][g]>1)srcs.push(BANDNAME[g].split(' ')[0]);});
+      var rc=b==='peak'?'rmax':(b==='solar'?'rmin':'');
+      ah+='<tr class="'+rc+'"><td class="opt">'+BANDNAME[b]+' <small>'+BANDHRS[b]+'</small></td><td>'+grp(cons/1000)+' MWh</td><td>'+grp(of/1000)+' MWh</td><td class="use">'+(of<1?'\u2014':srcs.join(' + '))+'</td><td>'+(sv<0?MINUS+RS:RS)+rup(Math.abs(sv),2)+'</td><td>'+(r.off[b]*sv<0?MINUS+RS:RS)+grp(Math.abs(r.off[b]*sv))+'</td></tr>';
+    });
+    ah+='<tr class="sub"><td class="opt">Gross saving from offsets</td><td></td><td>'+grp(r.offTotal/1000)+' MWh</td><td class="use"></td><td></td><td>'+(r.grossSave<0?MINUS+RS:RS)+grp(Math.abs(r.grossSave))+'</td></tr>';
+    if(r.spilled>1) ah+='<tr class="spillrow"><td class="opt">Stranded generation <small>@ '+RS+rup(inp.surplus,2)+'</small></td><td>\u2014</td><td>'+grp(r.spilled/1000)+' MWh</td><td class="use">no eligible demand</td><td>'+MINUS+RS+rup(inp.surplus,2)+'</td><td class="neg">'+MINUS+RS+grp(r.strandedLoss)+'</td></tr>';
+    ah+='<tr class="tot"><td class="opt">Net saving</td><td></td><td></td><td class="use">net '+(r.offTotal>0?(r.netSave<0?MINUS+RS:RS)+rup(Math.abs(r.netSave/r.offTotal),2)+'/unit':'')+'</td><td></td><td class="'+(r.netSave<0?'neg':'pos')+'">'+(r.netSave<0?MINUS+RS:RS)+grp(Math.abs(r.netSave))+'</td></tr>';
+    $('allocBody').innerHTML=ah;
+
+    // ---- per-slot ----
+    var vals=[r.sav.peak,r.sav.normal,r.sav.solar],minS=Math.min.apply(null,vals),maxS=Math.max.apply(null,vals),sh='';
+    [['solar',-inp.SREB],['normal',0],['peak',inp.PCHG]].forEach(function(o){
+      var b=o[0],tod=o[1],rt=r.retail(b),s=r.sav[b];
+      var rc=Math.abs(s-maxS)<1e-9?'rmax':(Math.abs(s-minS)<1e-9?'rmin':'');
+      var pill=Math.abs(s-maxS)<1e-9?'<span class="pill max">max</span>':(Math.abs(s-minS)<1e-9?'<span class="pill min">min</span>':'');
+      var todc=tod<0?'tod-neg':(tod>0?'tod-pos':'tod-zero'),tods=tod===0?'0%':(tod<0?MINUS+rup(-tod*100,1)+'%':'+'+rup(tod*100,1)+'%');
+      sh+='<tr class="'+rc+'"><td class="opt">'+BANDNAME[b]+pill+'</td><td>'+BANDHRS[b]+'</td><td class="'+todc+'">'+tods+'</td><td>'+RS+rup(rt,2)+'</td><td>'+RS+rup(r.oaCost,2)+'</td><td>'+(s<0?MINUS+RS:RS)+rup(Math.abs(s),2)+'</td><td class="use">'+USABLE[b].map(function(x){return BANDNAME[x]}).join(', ')+'</td></tr>';
+    });
+    $('slotBody').innerHTML=sh;
+
+    // ---- buildup ----
+    $('lossNote').textContent='\u00F7 (1\u2212'+rup(inp.TL*100,2)+'%)(1\u2212'+rup(inp.WL*100,1)+'%)';
+    $('d_re').textContent=RS+rup(r.rePu,2);$('d_tc').textContent=RS+rup(inp.TC,2);$('d_wc').textContent=RS+rup(inp.WC,2);
+    $('d_css').textContent=RS+rup(inp.CSS,2);$('d_addl').textContent=RS+rup(inp.ADDL,2);$('d_op').textContent=RS+rup(r.opPu,3);
+    $('opNote').textContent=RS+grp(inp.OP)+'/mo \u00F7 '+grp(r.delTotal/1000)+' MWh';$('d_oa').textContent=RS+rup(r.oaCost,2);
+
+    // ---- banking cards ----
+    var gm={solar:r.Gs,normal:r.Gn,peak:r.Gp},dmv={solar:r.Ds,normal:r.Dn,peak:r.Dp},bh='';
+    ['normal','solar','peak'].forEach(function(b){
+      var isGen=gm[b]>0,tags=['normal','solar','peak'].map(function(t){var ok=USABLE[b].indexOf(t)>=0;return '<span class="tag '+(ok?'y':'n')+'">'+(ok?'\u2713 ':'\u2715 ')+BANDNAME[t]+'</span>'}).join('');
+      var used=dmv[b]-(r.spillBy[b]||0);
+      bh+='<div class="bcell'+(isGen?' gen':'')+'"><div class="bh">'+BANDNAME[b]+' '+(isGen?'<span class="genflag">'+grp(gm[b]/1000)+' MWh gen</span>':'')+'<span class="bhr">'+BANDHRS[b]+'</span></div><div class="barrow">saving here <b>'+(r.sav[b]<0?MINUS+RS:RS)+rup(Math.abs(r.sav[b]),2)+'/unit</b></div>'+(isGen?'<div class="barrow">used <b>'+grp(used/1000)+'</b> \u00B7 stranded <b>'+grp((r.spillBy[b]||0)/1000)+'</b> MWh</div>':'')+'<div class="barrow">may be drawn in:</div><div>'+tags+'</div></div>';
+    });
+    $('bankGrid').innerHTML=bh;
+
+    // ---- year-by-year table (incl. flat years to payback) ----
+    var yh='';
+    mp.rows.forEach(function(row){
+      var sel=!row.flat && row.y===yi;
+      var ry=row.flat?3:row.y;
+      var srp=catObj().tod==='rs'?(Y.ghsrs[ry]/catObj().ec[ry]*100):Y.sreb[ry];
+      var lab=fyLabelIdx(row.y)+(row.flat?' <span style="color:var(--faint)">(flat)</span>':'')+(sel?' \u25C0':'');
+      var cross=(mp.pb!==null && Math.floor(mp.pb)===row.y);
+      yh+='<tr class="'+(sel?'sub':(cross?'rmax':''))+'"><td class="opt">'+lab+'</td><td>'+MINUS+rup(srp,0)+'%</td><td>'+(row.mo<0?MINUS+RS:RS)+grp(Math.abs(row.mo))+'</td><td class="'+(row.ann<0?'neg':'pos')+'">'+(row.ann<0?MINUS+RS:RS)+rup(Math.abs(row.ann)/1e7,2)+' cr</td><td class="'+(row.cum<0?'neg':'pos')+'">'+(row.cum<0?MINUS+RS:RS)+rup(Math.abs(row.cum)/1e7,2)+' cr</td></tr>';
+    });
+    yh+='<tr class="tot"><td class="opt">Your equity to recover</td><td></td><td></td><td></td><td>'+RS+rup(consEq,2)+' cr</td></tr>';
+    $('yearBody').innerHTML=yh;
+
+    // ---- annual (selected year) ----
+    $('a_net').innerHTML=(r.netSave<0?MINUS:'')+RS+rup(Math.abs(r.netSave*12)/1e7,2)+' <small>cr</small>';
+    $('a_net').className='av '+(r.netSave<0?'neg':'pos');
+    $('a_loss').innerHTML=MINUS+RS+rup(r.strandedLoss*12/1e7,2)+' <small>cr</small>';
+    $('a_off').innerHTML=rup(r.offTotal*12/1e6,2)+' <small>MU</small>';
+    $('a_spill').innerHTML=rup(r.spilled*12/1e6,2)+' <small>MU ('+rup(r.strandedPct,1)+'%)</small>';
+
+    // ---- caution ----
+    var c=canon(),changed=[];
+    ['ec','sreb','pchg','tc','tl','wc','wl','css','addl','surplus','op'].forEach(function(k){
+      var cur=num(k),def=c[k],el=$(k);
+      if(Math.abs(cur-def)>1e-9){changed.push({k:k,cur:cur,def:def});el.classList.add('changed');}else el.classList.remove('changed');});
+    var cb=$('cautionBox');
+    if(changed.length){cb.style.display='block';$('cautionList').innerHTML=changed.map(function(x){return '<li><b>'+LABELS[x.k]+'</b> ('+FYLABEL[yi]+'): reference '+fmtVal(x.k,x.def)+' &rarr; you entered '+fmtVal(x.k,x.cur)+'</li>'}).join('');}else cb.style.display='none';
+  }
+
+  function calc(){ render(model(num('mw'))); }
+
+  $('optBtn').addEventListener('click',function(){
+    var inp=readInputs(), was=num('mw'), res=optimize(inp), chip=$('optChip');
+    chip.style.display='block'; chip.classList.remove('miss');
+    if(!res){chip.classList.add('miss');chip.innerHTML='Enter your renewable generation and monthly consumption first, then optimise.';return;}
+    if(!res.best||res.best.net<=0){chip.classList.add('miss');chip.innerHTML='No plant size yields a net saving for '+catObj().n+' in '+FYLABEL[yrIdx()]+' &mdash; charges and losses outweigh the ToD saving this year.';return;}
+    $('mw').value=res.best.mw; syncOp();
+    var rr=model(res.best.mw,readInputs()), mm=moneyMonth(rr.netSave);
+    chip.innerHTML='&#9889; Optimal capacity <b>'+res.best.mw+' MW</b> for '+FYLABEL[yrIdx()]+' &rarr; net <b>'+RS+mm[0]+' '+mm[1]+'</b> at <b>'+rup(res.best.sp,1)+'%</b> stranded'+(Math.abs(was-res.best.mw)>0.05?' &nbsp;(was '+rup(was,1)+' MW)':'')+'. Check the year-by-year table for later years.';
+    $('mw').classList.add('optd'); setTimeout(function(){$('mw').classList.remove('optd')},1500);
+    calc();
+  });
+
+  $('showBtn').addEventListener('click',function(){var d=$('details'),open=d.classList.toggle('on');this.classList.toggle('open',open);this.childNodes[0].nodeValue=open?'Hide the full working ':'Show the full working ';});
+  $('cat').addEventListener('change',function(){applyDefaults();$('optChip').style.display='none';calc();});
+  $('volt').addEventListener('change',function(){applyDefaults();calc();});
+  $('fy').addEventListener('change',function(){applyDefaults();calc();});
+  $('mw').addEventListener('input',function(){syncOp();$('optChip').style.display='none';calc();});
+  $('ppc').addEventListener('input',function(){syncSurplus();calc();});
+  $('reset').addEventListener('click',function(){var c=canon();$('ec').value=c.ec;$('css').value=c.css;$('sreb').value=c.sreb;$('pchg').value=c.pchg;$('tc').value=c.tc;$('tl').value=c.tl;$('wc').value=c.wc;$('wl').value=c.wl;$('addl').value=c.addl;$('surplus').value=rup(num('ppc'),2);$('op').value=c.op;calc();});
+  ['cat','volt','src','fy','mw','ppc','gsolar','gnormal','gpeak','csolar','cnormal','cpeak','costmw','roe','eqproj','eqcons','ec','sreb','pchg','tc','tl','wc','wl','css','addl','surplus','op']
+    .forEach(function(id){var el=$(id);if(el){el.addEventListener('input',calc);el.addEventListener('change',calc);}});
+  calc();
+})();
+
+</script>
+</body>
+</html>
