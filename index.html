@@ -228,7 +228,7 @@
             <select id="fy"><option value="0" selected>FY 2026-27</option><option value="1">FY 2027-28</option><option value="2">FY 2028-29</option><option value="3">FY 2029-30</option></select></div>
         </div>
         <div class="row two">
-          <div class="field unit"><label for="mw">OA capacity</label><input type="number" id="mw" value="10" min="0" step="0.5" inputmode="decimal"><span class="u">MW</span></div>
+          <div class="field unit"><label for="mw">OA capacity</label><input type="number" id="mw" value="6.5" min="0" step="0.5" inputmode="decimal"><span class="u">MW</span></div>
           <div class="field unit"><label for="ppc">RE price</label><input type="number" id="ppc" value="3.00" min="0" step="0.05" inputmode="decimal"><span class="u">&#8377;/unit</span></div>
         </div>
 
@@ -280,7 +280,7 @@
               <div class="field unit"><label for="wl">Wheeling loss</label><input type="number" id="wl" value="7.5" min="0" step="0.1"><span class="u">%</span><div class="hint">0 EHV &middot; 7.5 HT &middot; pg 106</div></div>
             </div>
             <div class="row two">
-              <div class="field unit"><label for="css">Cross-subsidy surcharge</label><input type="number" id="css" value="2.07" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">pg 106</div></div>
+              <div class="field unit"><label for="css">Cross-subsidy surcharge</label><input type="number" id="css" value="2.07" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">pg 106 &middot; nil if equity share &ge; 26%</div></div>
               <div class="field unit"><label for="addl">Additional surcharge</label><input type="number" id="addl" value="0" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">nil</div></div>
             </div>
             <div class="field unit"><label for="surplus">Surplus / stranded energy loss</label><input type="number" id="surplus" value="3.00" min="0" step="0.01"><span class="u">&#8377;/unit</span><div class="hint">defaults to RE price (conservative); tracks it unless you edit</div></div>
@@ -403,6 +403,7 @@
     <div class="nh">Notes on the figures used</div>
     <div class="nb"><ul>
       <li><b>Pick a tariff category and all charges reload.</b> Energy charge and wheeling charge come from page 100, cross-subsidy surcharge from page 106 (its EHV and HT values differ for some categories), and the ToD rebate/charge from Table 8 (pg 76-77), all for FY 2026-27. Operating charges, transmission charge and transmission loss do <b>not</b> change with category.</li>
+      <li><b>Cross-subsidy surcharge is set to nil when your equity share is 26% or more</b> &mdash; the captive / group-captive exemption. It applies across every year and the payback. Drop your equity share below 26% and the category&rsquo;s CSS from page 106 is charged again. (Additional surcharge is already nil.)</li>
       <li><b>Stranded energy is valued at the RE price</b> (the conservative choice: you pay your PPA for that energy and receive nothing, because MSEDCL pays nil against the &#8377;2.24/unit surplus tariff). You may, at your discretion, lower the rate in the charges panel to <b>&ldquo;RE price &minus; &#8377;2.24&rdquo;</b> &mdash; but that assumes MSEDCL actually pays the surplus tariff, so it is <b>not a conservative approach</b>.</li>
       <li><b>Stranded generation is capped at 10% of total generation.</b> If your plant breaches this the tool flags it &mdash; use <b>Optimise</b> or raise daytime consumption.</li>
       <li><b>Banking is worked down the value ladder</b> (para 18.21): peak surplus serves peak, then normal, then solar demand; normal surplus serves normal then solar; solar surplus can serve only solar and is otherwise stranded. <b>Optimise</b> sweeps plant sizes and picks the MW with the highest net saving within the 10% cap.</li>
@@ -475,7 +476,7 @@
     var c=catObj(), volt=$('volt').value, mw=num('mw'), yi=yrIdx();
     var sreb,pchg;
     if(c.tod==='rs'){ sreb=Math.round(Y.ghsrs[yi]/c.ec[yi]*10000)/100; pchg=0; } else { sreb=Y.sreb[yi]; pchg=20; }
-    return {ec:c.ec[yi], css:(volt==='EHV'?c.cssE[yi]:c.cssH[yi]), sreb:sreb, pchg:pchg,
+    return {ec:c.ec[yi], css:(num('eqcons')>=26?0:(volt==='EHV'?c.cssE[yi]:c.cssH[yi])), sreb:sreb, pchg:pchg,
             tc:Y.tc[yi], tl:Y.tl[yi], wc:volt==='EHV'?0:Y.wcht[yi], wl:volt==='EHV'?0:7.5,
             addl:0, surplus:num('ppc'), op:mw<=5?16500:31850};
   }
@@ -496,7 +497,7 @@
     var c=catObj(), volt=$('volt').value, sreb,pchg;
     if(c.tod==='rs'){ sreb=Y.ghsrs[yi]/c.ec[yi]; pchg=0; } else { sreb=Y.sreb[yi]/100; pchg=0.20; }
     return {ppc:num('ppc'), EC:c.ec[yi], SREB:sreb, PCHG:pchg, TC:Y.tc[yi], TL:Y.tl[yi]/100,
-      WC:volt==='EHV'?0:Y.wcht[yi], WL:volt==='EHV'?0:0.075, CSS:(volt==='EHV'?c.cssE[yi]:c.cssH[yi]),
+      WC:volt==='EHV'?0:Y.wcht[yi], WL:volt==='EHV'?0:0.075, CSS:(num('eqcons')>=26?0:(volt==='EHV'?c.cssE[yi]:c.cssH[yi])),
       ADDL:0, OP:num('op'), surplus:num('ppc'),
       sgpm:num('gsolar'),ngpm:num('gnormal'),pgpm:num('gpeak'),cs:num('csolar'),cn:num('cnormal'),cp:num('cpeak')};
   }
@@ -658,6 +659,9 @@
     if(mw<=0){W.push({t:'err',html:'Enter the OA capacity in MW &mdash; or click <b>Optimise</b>.'});flag('mw','bad');}
     if(r.strandedPct>10)W.push({t:'err',html:'<b>Stranded generation is '+rup(r.strandedPct,1)+'%</b> &mdash; above the <b>10% limit</b>. Click <b>Optimise</b> or raise daytime consumption.'});
     if(catObj().tod==='rs')W.push({t:'inf',html:'This category uses the <b>Rs/unit ToD rebate</b> (&#8377;'+rup(Y.ghsrs[yi],2)+'/unit in '+FYLABEL[yi]+'), shown as its % equivalent.'});
+    var wouldCss = ($('volt').value==='EHV'?catObj().cssE[yi]:catObj().cssH[yi]);
+    if(num('eqcons')>=26 && wouldCss>0) W.push({t:'inf',html:'<b>Cross-subsidy surcharge is nil.</b> Your equity share ('+rup(num('eqcons'),0)+'%) meets the &ge;26% captive threshold, so the drawal is exempt from CSS (&#8377;'+rup(wouldCss,2)+'/unit otherwise).'});
+    else if(num('eqcons')<26 && wouldCss>0) W.push({t:'cau',html:'<b>Equity share is below 26%.</b> No captive exemption &mdash; cross-subsidy surcharge of &#8377;'+rup(wouldCss,2)+'/unit applies. Raise your equity share to &ge;26% to remove it.'});
     ['mw','gsolar','gnormal','gpeak','csolar','cnormal','cpeak'].forEach(function(id){var el=$(id);el.classList.remove('bad','warnf');if(fld[id])el.classList.add(fld[id]);});
     var wb=$('warnBox');
     if(W.length){wb.style.display='block';var nerr=W.filter(function(x){return x.t==='err'}).length;
@@ -754,10 +758,12 @@
   $('fy').addEventListener('change',function(){applyDefaults();calc();});
   $('mw').addEventListener('input',function(){syncOp();$('optChip').style.display='none';calc();});
   $('ppc').addEventListener('input',function(){syncSurplus();calc();});
+  $('eqcons').addEventListener('input',function(){$('css').value=canon().css;calc();});
+  $('eqcons').addEventListener('change',function(){$('css').value=canon().css;calc();});
   $('reset').addEventListener('click',function(){var c=canon();$('ec').value=c.ec;$('css').value=c.css;$('sreb').value=c.sreb;$('pchg').value=c.pchg;$('tc').value=c.tc;$('tl').value=c.tl;$('wc').value=c.wc;$('wl').value=c.wl;$('addl').value=c.addl;$('surplus').value=rup(num('ppc'),2);$('op').value=c.op;calc();});
-  ['cat','volt','src','fy','mw','ppc','gsolar','gnormal','gpeak','csolar','cnormal','cpeak','costmw','roe','eqproj','eqcons','ec','sreb','pchg','tc','tl','wc','wl','css','addl','surplus','op']
+  ['cat','volt','src','fy','mw','ppc','gsolar','gnormal','gpeak','csolar','cnormal','cpeak','costmw','roe','eqproj','ec','sreb','pchg','tc','tl','wc','wl','css','addl','surplus','op']
     .forEach(function(id){var el=$(id);if(el){el.addEventListener('input',calc);el.addEventListener('change',calc);}});
-  calc();
+  applyDefaults(); calc();
 })();
 
 </script>
